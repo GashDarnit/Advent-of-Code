@@ -1,17 +1,16 @@
 import java.io.*;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 class Solution {
     private static List<Long> seeds = new ArrayList<>();
     private static List<long[]> mappingList = new ArrayList<>();
+    private static Queue<long[]> seedRange = new LinkedList<>();
     private static int index = 3;
     
     public static void main(String[] args) {
         List<String> lines = new ArrayList<>();
         
-        try (BufferedReader reader = new BufferedReader(new FileReader("test.txt"))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader("input.txt"))) {
             String line;
 
             while ((line = reader.readLine()) != null) {
@@ -28,13 +27,8 @@ class Solution {
             seeds.add(Long.parseLong(seedValue));
         }
         
-        /*
-        for (int i = 0; i < mappingList.size(); i++)
-            System.out.println("Mapping " + i + ": " + java.util.Arrays.toString(mappingList.get(i)));
-        */
-        
         System.out.println(getMinimumLocation(inputs));
-        
+        System.out.println(getMinimumLocationPartTwo(inputs));
     }
     
     private static long getMinimumLocation(String[] inputs) {
@@ -60,7 +54,63 @@ class Solution {
         Arrays.sort(arr);
         return arr[0];
     }
+
+    private static long getMinimumLocationPartTwo(String[] inputs) {
+        index = 3;
+        getSeeds();
+        
+        while(index < inputs.length) {
+            getNextMapping(inputs);
+            
+            Queue<long[]> newSeeds = new LinkedList<>();
+            while(seedRange.size() > 0) {
+                long[] range = seedRange.poll();
+                long start = range[0], end = range[1];
+                
+                boolean rangeMatched = false;
+                
+                for(long[] data : mappingList) {
+                    long overlapStart = Math.max(start, data[1]);
+                    long overlapEnd = Math.min(end, data[1] + data[2]);
+                    
+                    if(overlapStart < overlapEnd) {
+                        newSeeds.add(new long[] {overlapStart - data[1] + data[0], overlapEnd - data[1] + data[0]});
+                        
+                        if(overlapStart > start)
+                            seedRange.add(new long[] {start, overlapStart});
+                        
+                        if(end > overlapEnd)
+                            seedRange.add(new long[] {overlapEnd, end});
+                        
+                        rangeMatched = true;
+                        break;
+                    }
+                }
+                
+                if(!rangeMatched)
+                    newSeeds.add(new long[] {start, end});
+            }
+            
+            seedRange = newSeeds;
+        }
+        
+        List<long[]> answer = new ArrayList<>();
+        while(seedRange.size() > 0) {
+            long[] values = seedRange.poll();
+            answer.add(values);
+        }
+        
+        Collections.sort(answer, (a, b) -> Long.compare(a[0], b[0]));
+        
+        return answer.get(0)[0];
+    }
     
+    private static void getSeeds() {
+        for(int i = 0; i < seeds.size(); i += 2) {
+            seedRange.add(new long[] {seeds.get(i), seeds.get(i) + seeds.get(i + 1) - 1});
+        }
+    }
+   
     private static void getNextMapping(String[] inputs) {
         mappingList.clear();
         
