@@ -28,7 +28,7 @@ class Solution {
             index++;
         }
         
-        System.out.println(totalWinningPoints(inputs));
+        System.out.println("Part 1: " + totalWinningPoints(inputs));
     }
     
     private static long totalWinningPoints(String[] inputs) {
