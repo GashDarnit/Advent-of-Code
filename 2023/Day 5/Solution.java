@@ -27,8 +27,8 @@ class Solution {
             seeds.add(Long.parseLong(seedValue));
         }
         
-        System.out.println(getMinimumLocation(inputs));
-        System.out.println(getMinimumLocationPartTwo(inputs));
+        System.out.println("Part 1: " + getMinimumLocation(inputs));
+        System.out.println("Part 2: " + getMinimumLocationPartTwo(inputs));
     }
     
     private static long getMinimumLocation(String[] inputs) {
