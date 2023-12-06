@@ -1,1 +1,0 @@
-java -cp "C:\Program Files\Eclipse Adoptium\jdk-17.0.6+10" Solution.java > Answer.txt
