@@ -58,7 +58,6 @@ class Solution {
                 if(winningNumbers.contains(num))
                     wins.add(num);
             }
-            
             sum += Math.pow(2, wins.size() - 1);
         }
         
