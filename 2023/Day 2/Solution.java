@@ -31,10 +31,8 @@ class Solution {
             index++;
         }
         
-        System.out.println("Sum of Games: " + sumOfGames(inputs));
-        System.out.println("Sum of Multiple of Games: " + sumOfMultipleOfGames(inputs));
-        //sumOfGames(inputs);
-        //sumOfMultipleOfGames(inputs);
+        System.out.println("Part 1: " + sumOfGames(inputs));
+        System.out.println("Part 2: " + sumOfMultipleOfGames(inputs));
     }
     
     private static void initializeMap() {
