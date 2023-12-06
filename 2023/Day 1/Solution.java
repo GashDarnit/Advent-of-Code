@@ -24,8 +24,8 @@ class Solution {
         
         String[] inputs = lines.toArray(new String[0]);
         
-        System.out.println(sumOfCalibrationValues(inputs));
-        System.out.println(sumOfNumbers(inputs));
+        System.out.println("Part 1: " + sumOfCalibrationValues(inputs));
+        System.out.println("Part 2: " + sumOfNumbers(inputs));
         
         
         //System.out.println(sumOfCalibrationValues(new String[] {"1abc2", "pqr3stu8vwx", "a1b2c3d4e5f", "treb7uchet"}));
