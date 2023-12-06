@@ -18,5 +18,5 @@ class Solution {
         }
 
         String[] inputs = lines.toArray(new String[0]);
-    }   
+    }
 }
