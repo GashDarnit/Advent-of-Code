@@ -1,0 +1,1 @@
+java Solution.java > Answer.txt
