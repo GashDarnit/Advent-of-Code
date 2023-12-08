@@ -28,6 +28,7 @@ class Solution {
             parseAndStoreInput(inputs[i], locationMapping);
         
         System.out.println("Part 1: " + stepsToReachTarget(instructions, locationMapping));
+        System.out.println("Part 2: " + stepsForAllToReachTarget(instructions, locationMapping));
     }
     
     private static long stepsToReachTarget(String moves, Map<String, String[]> locationMapping) {
@@ -57,6 +58,60 @@ class Solution {
         return steps;
     }
     
+    private static long stepsForAllToReachTarget(String moves, Map<String, String[]> locationMapping) {
+        List<String> currentPositions = new ArrayList();
+        for(String location : locationMapping.keySet())
+            if(location.charAt(2) == 'A')
+                currentPositions.add(location);
+        
+        List<List<Long>> cycles = new ArrayList<>();
+        
+        for (String current : currentPositions) {
+            List<Long> visited = new ArrayList<>();
+
+            String currentSteps = moves;
+            long stepCount = 0;
+            String firstZ = null;
+
+            while (true) {
+                while (stepCount == 0 || current.charAt(2) != 'Z') {
+                    stepCount++;
+                    String[] positions = locationMapping.get(current);
+                    
+                    if(currentSteps.charAt(0) == 'L') current = positions[0];
+                    else current = positions[1];
+                    
+                    currentSteps = currentSteps.substring(1) + currentSteps.charAt(0); //shift first character to the end
+                }
+
+                visited.add(stepCount);
+
+                if (firstZ == null) {
+                    firstZ = current;
+                    stepCount = 0;
+                } else if (current.equals(firstZ))
+                    break;
+            }
+
+            cycles.add(visited);
+        }
+        
+        long answer = cycles.get(0).get(0);
+        for(int i = 1; i < cycles.size(); i++)
+            answer = answer * cycles.get(i).get(0) / greatestCommonDivisor(answer, cycles.get(i).get(0));
+        
+        return answer;
+    }
+    
+    private static long greatestCommonDivisor(long a, long b) {
+        while (b != 0) {
+            long temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
     private static void parseAndStoreInput(String input, Map<String, String[]> map) {
         String[] parts = input.split(" = ");
         String key = parts[0];
