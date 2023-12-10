@@ -44,6 +44,7 @@ class Solution {
                 }
             }
         }
+        
         System.out.println("Part 1: " + stepsToReachEnd(map, startingPos));
         System.out.println("Part 2: " + tilesEnclosedByLoop(map, startingPos));
     }
@@ -92,15 +93,6 @@ class Solution {
     private static int tilesEnclosedByLoop(char[][] map, Coordinates startingPos) {
         Queue<Coordinates> queue = new LinkedList<>();
         Set<Coordinates> visited = new HashSet<>();
-        
-        Set<String> possibleSValues = new HashSet<>();
-        possibleSValues.add("|");
-        possibleSValues.add("-");
-        possibleSValues.add("J");
-        possibleSValues.add("L");
-        possibleSValues.add("7");
-        possibleSValues.add("F");
-        
         int m = map.length, n = map[0].length;
         
         queue.add(startingPos);
@@ -115,62 +107,37 @@ class Solution {
                 Coordinates newCoords = new Coordinates(current.row - 1, current.column);
                 visited.add(newCoords);
                 queue.add(newCoords);
-                
-                if(currentItem.equals("S")) {
-                    if ("S|JL".contains(currentItem)) {
-                        possibleSValues.retainAll(List.of("|", "J", "L"));
-                    }
-                }
             }
             //go downwards
-            else if(current.row < m - 1 && "S|7F".contains(currentItem) && "|JL".contains(Character.toString(map[current.row + 1][current.column])) && !visited.contains(new Coordinates(current.row + 1, current.column))) {
+            if(current.row < m - 1 && "S|7F".contains(currentItem) && "|JL".contains(Character.toString(map[current.row + 1][current.column])) && !visited.contains(new Coordinates(current.row + 1, current.column))) {
                 Coordinates newCoords = new Coordinates(current.row + 1, current.column);
                 visited.add(newCoords);
                 queue.add(newCoords);
-                
-                if(currentItem.equals("S")) {
-                    if ("S|7F".contains(currentItem)) {
-                        possibleSValues.retainAll(List.of("|", "7", "F"));
-                    }
-                }
             }
             //go left
-            else if(current.column > 0 && "S-J7".contains(currentItem) && "-LF".contains(Character.toString(map[current.row][current.column - 1])) && !visited.contains(new Coordinates(current.row, current.column - 1))) {
+            if(current.column > 0 && "S-J7".contains(currentItem) && "-LF".contains(Character.toString(map[current.row][current.column - 1])) && !visited.contains(new Coordinates(current.row, current.column - 1))) {
                 Coordinates newCoords = new Coordinates(current.row, current.column - 1);
                 visited.add(newCoords);
                 queue.add(newCoords);
-                
-                if(currentItem.equals("S")) {
-                    if ("S-J7".contains(currentItem)) {
-                        possibleSValues.retainAll(List.of("-", "J", "7"));
-                    }
-                }
             }
             //go right
-            else if(current.column < n - 1 && "S-LF".contains(currentItem) && "-J7".contains(Character.toString(map[current.row][current.column + 1])) && !visited.contains(new Coordinates(current.row, current.column + 1))) {
+            if(current.column < n - 1 && "S-LF".contains(currentItem) && "-J7".contains(Character.toString(map[current.row][current.column + 1])) && !visited.contains(new Coordinates(current.row, current.column + 1))) {
                 Coordinates newCoords = new Coordinates(current.row, current.column + 1);
                 visited.add(newCoords);
                 queue.add(newCoords);
-                
-                if(currentItem.equals("S")) {
-                    if ("S-LF".contains(currentItem)) {
-                        possibleSValues.retainAll(List.of("-", "L", "F"));
-                    }
-                }
             }
         }
         
-        String startingItem = possibleSValues.iterator().next();
+        String startingItem = Character.toString(getStartingPipe(map, startingPos));
         map[startingPos.row][startingPos.column] = startingItem.charAt(0);
         replaceNonLoopItems(map, visited);
         
         Set<Coordinates> outside = new HashSet<>();
-
-        for (int i = 0; i < map.length; i++) {
+        for (int i = 0; i < m; i++) {
             boolean inside = false;
             Boolean up = null;
 
-            for (int j = 0; j < map[i].length; j++) {
+            for (int j = 0; j < n; j++) {
                 char currentItem = map[i][j];
 
                 if (currentItem == '|') {
@@ -212,6 +179,36 @@ class Solution {
                 }
             }
         }
+    }
+    
+    private static char getStartingPipe(char[][] map, Coordinates startingPos) {
+        boolean[] checks = new boolean[4];
+        int row = startingPos.row, column = startingPos.column;
+        for(int i = 0; i < checks.length; i++) checks[i] = false;
+        
+        //check above
+        if("|7F".contains(Character.toString(map[row - 1][column]))) checks[0] = true;
+        //check below
+        if("|JL".contains(Character.toString(map[row + 1][column]))) checks[1] = true;
+        //check left
+        if("-LF".contains(Character.toString(map[row][column - 1]))) checks[2] = true;
+        //check right
+        if("-J7".contains(Character.toString(map[row][column + 1]))) checks[3] = true;
+        
+        //straight up and down
+        if(checks[0] && checks[1]) return '|';
+        //up and left
+        else if(checks[0] && checks[2]) return 'J';
+        //up and right
+        else if(checks[0] && checks[3]) return 'L';
+        //left and down
+        else if(checks[2] && checks[1]) return '7';
+        //straight left and right
+        else if(checks[2] && checks[3]) return '-';
+        //down and right
+        else if(checks[1] && checks[3]) return 'F';
+        
+        return '.';
     }
 
     static class Coordinates {
