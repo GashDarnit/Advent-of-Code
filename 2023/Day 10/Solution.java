@@ -159,15 +159,15 @@ class Solution {
             }
         }
         
-        Set<Coordinates> coordsOutside = new HashSet<>();
+        Set<Coordinates> notIncluded = new HashSet<>();
         for(int i = 0; i < m; i++) {
             for(int j = 0; j < n; j++) {
                 Coordinates temp = new Coordinates(i, j);
-                if(!outside.contains(temp) && !visited.contains(temp)) coordsOutside.add(temp);
+                if(!outside.contains(temp) && !visited.contains(temp)) notIncluded.add(temp);
             }
         }
         
-        return coordsOutside.size();
+        return notIncluded.size();
     }
     
     private static void replaceNonLoopItems(char[][] map, Set<Coordinates> visited) {
