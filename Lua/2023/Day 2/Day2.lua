@@ -122,8 +122,6 @@ function partTwo()
                 
                 if mapping[color] then
                     if mapping[color] < currentInt then
-                        --print(color .. ": " .. mapping[color] .. " vs " .. currentInt)
-                        
                         mapping[color] = currentInt
                     end
                     
