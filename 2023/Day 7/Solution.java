@@ -31,7 +31,9 @@ class Solution {
         }
 
         String[] inputs = lines.toArray(new String[0]);
+        
         System.out.println("Part One: " + totalWinnings(inputs));
+        System.out.println("Part Two: " + totalWinningsPartTwo(inputs));
     }
     
     private static long totalWinnings(String[] inputs) {
@@ -59,9 +61,35 @@ class Solution {
         return total;
     }
     
+    private static long totalWinningsPartTwo(String[] inputs) {
+        Map<String, Integer> handsAndValues = new HashMap<>();
+        List<Map<String, Integer>> listOfHands = new ArrayList<>();
+        long total = 0;
+        
+        mapping.put('J', '.');
+        
+        for(String input : inputs) {
+            String[] temp = input.split(" ");
+            Map<String, Integer> tempMap = new HashMap<>();
+            tempMap.put(temp[0], Integer.parseInt(temp[1]));
+            listOfHands.add(tempMap);
+        }
+        
+        sortHandsAndValuesPartTwo(listOfHands);
+        
+        int rankIteration = 1;
+        for(Map<String, Integer> items : listOfHands) {
+            for(Map.Entry<String, Integer> entry : items.entrySet()) {
+                total += (entry.getValue() * rankIteration);
+            }
+            rankIteration++;
+        }
+        
+        return total;
+    }
+    
     private static void sortHandsAndValues(List<Map<String, Integer>> listOfHands) {
         int n = listOfHands.size();
- 
         for (int i = 0; i < n - 1; i++) {
             int minIndex = i;
             for (int j = i + 1; j < n; j++) {
@@ -85,6 +113,44 @@ class Solution {
                 if(getHandTypeValue(handOne) <  getHandTypeValue(handTwo))
                     minIndex = j;
                 else if(getHandTypeValue(handOne) == getHandTypeValue(handTwo)) {
+                    int comparisonResult = compareHandValues(getHandValue(handOne), getHandValue(handTwo));
+                    if(comparisonResult == 1)
+                        minIndex = j;
+                }
+                
+            }
+            
+            Map<String, Integer> temp = listOfHands.get(minIndex);
+            listOfHands.set(minIndex, listOfHands.get(i));
+            listOfHands.set(i, temp);
+        }
+    }
+    
+    private static void sortHandsAndValuesPartTwo(List<Map<String, Integer>> listOfHands) {
+        int n = listOfHands.size();
+        for (int i = 0; i < n - 1; i++) {
+            int minIndex = i;
+            for (int j = i + 1; j < n; j++) {
+                String handOne = "";
+                int bidOne = 0;
+                
+                String handTwo = "";
+                int bidTwo = 0;
+                
+                for(Map.Entry<String, Integer> entry : listOfHands.get(j).entrySet()) {
+                    handOne = entry.getKey();
+                    bidOne = entry.getValue();
+                }
+                
+                for(Map.Entry<String, Integer> entry : listOfHands.get(minIndex).entrySet()) {
+                    handTwo = entry.getKey();
+                    bidTwo = entry.getValue();
+                }
+                
+                
+                if(getHandTypeValuePartTwo(handOne) <  getHandTypeValuePartTwo(handTwo))
+                    minIndex = j;
+                else if(getHandTypeValuePartTwo(handOne) == getHandTypeValuePartTwo(handTwo)) {
                     int comparisonResult = compareHandValues(getHandValue(handOne), getHandValue(handTwo));
                     if(comparisonResult == 1)
                         minIndex = j;
@@ -132,5 +198,57 @@ class Solution {
         
         return sumHandValue;
     }
-
+    
+    private static int getHandTypeValuePartTwo(String hand) {
+        int sumHandValue = 0;
+        if(hand.equals("JJJJJ")) return 25;
+        
+        char[] arr = hand.toCharArray();
+        char mode = getMode(hand);
+        
+        for(int i = 0; i < arr.length; i++) {
+            if(arr[i] == 'J') {
+                arr[i] = mode;
+            }
+        }
+        
+        hand = new String(arr);
+        
+        Map<Character, Integer> map = new HashMap<>();
+        for(char i : hand.toCharArray()) {
+            if(!map.containsKey(i)) map.put(i, 1);
+            else map.put(i, map.get(i) + 1);
+        }
+        
+        for(Map.Entry<Character, Integer> entry : map.entrySet())
+            sumHandValue += (int) Math.pow(entry.getValue(), 2);
+        
+        return sumHandValue;
+    }
+    
+    private static char getMode(String hand) {
+        char[] arr = hand.toCharArray();
+        Map<Character, Integer> count = new HashMap<>();
+        
+        for(char i : arr) {
+            if(!count.containsKey(i)) count.put(i, 1);
+            else count.put(i, count.get(i) + 1);
+        }
+        
+        char mode = '.';
+        int highestCount = 0;
+        for(Map.Entry<Character, Integer> entry : count.entrySet()) {
+            if(entry.getKey() != 'J') {
+                if(entry.getValue() > highestCount) {
+                    highestCount = entry.getValue();
+                    mode = entry.getKey();
+                } else if(entry.getValue() == highestCount) {
+                    if(entry.getKey() > mode) mode = entry.getKey();
+                }
+            }
+        }
+        
+        
+        return mode;
+    }
 }
