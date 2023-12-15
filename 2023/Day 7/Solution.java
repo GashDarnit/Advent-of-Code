@@ -1,22 +1,22 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 class Solution {
-    private static Map<Character, Character> cardToValueMapping = new HashMap<>();
-    private static Map<Character, Character> partTwoCardToValueMapping = new HashMap<>();
-    private static List<String[]> hands = new ArrayList<>();
-
+    public static Map<Character, Character> mapping = new HashMap<>();
+    
     static {
-        cardToValueMapping.put('T', 'A');
-        cardToValueMapping.put('J', 'B');
-        cardToValueMapping.put('Q', 'C');
-        cardToValueMapping.put('K', 'D');
-        cardToValueMapping.put('A', 'E');
-        
+        mapping.put('T', 'A');
+        mapping.put('J', 'B');
+        mapping.put('Q', 'C');
+        mapping.put('K', 'D');
+        mapping.put('A', 'E');
     }
-
+    
     public static void main(String[] args) {
         List<String> lines = new ArrayList<>();
 
@@ -31,99 +31,106 @@ class Solution {
         }
 
         String[] inputs = lines.toArray(new String[0]);
-        
-        System.out.println("Part 1: " + totalWinnings(inputs));
+        System.out.println("Part One: " + totalWinnings(inputs));
     }
-
+    
     private static long totalWinnings(String[] inputs) {
+        Map<String, Integer> handsAndValues = new HashMap<>();
+        List<Map<String, Integer>> listOfHands = new ArrayList<>();
         long total = 0;
-        for (String input : inputs) {
+        
+        for(String input : inputs) {
             String[] temp = input.split(" ");
-            hands.add(new String[]{temp[0], temp[1]});
+            Map<String, Integer> tempMap = new HashMap<>();
+            tempMap.put(temp[0], Integer.parseInt(temp[1]));
+            listOfHands.add(tempMap);
         }
         
-        sortHands();
+        sortHandsAndValues(listOfHands);
         
-        int rank = 1;
-        for (String[] hand : hands) {
-            total += (Integer.parseInt(hand[1]) * rank);
-            rank++;
+        int rankIteration = 1;
+        for(Map<String, Integer> items : listOfHands) {
+            for(Map.Entry<String, Integer> entry : items.entrySet()) {
+                total += (entry.getValue() * rankIteration);
+            }
+            rankIteration++;
         }
         
         return total;
     }
     
-    private static int getHandType(String hand) {
-        Map<Character, Integer> map = new HashMap<>();
-
-        for (char i : hand.toCharArray()) {
-            if (!map.containsKey(i)) map.put(i, 1);
-            else map.put(i, map.get(i) + 1);
+    private static void sortHandsAndValues(List<Map<String, Integer>> listOfHands) {
+        int n = listOfHands.size();
+ 
+        for (int i = 0; i < n - 1; i++) {
+            int minIndex = i;
+            for (int j = i + 1; j < n; j++) {
+                String handOne = "";
+                int bidOne = 0;
+                
+                String handTwo = "";
+                int bidTwo = 0;
+                
+                for(Map.Entry<String, Integer> entry : listOfHands.get(j).entrySet()) {
+                    handOne = entry.getKey();
+                    bidOne = entry.getValue();
+                }
+                
+                for(Map.Entry<String, Integer> entry : listOfHands.get(minIndex).entrySet()) {
+                    handTwo = entry.getKey();
+                    bidTwo = entry.getValue();
+                }
+                
+                
+                if(getHandTypeValue(handOne) <  getHandTypeValue(handTwo))
+                    minIndex = j;
+                else if(getHandTypeValue(handOne) == getHandTypeValue(handTwo)) {
+                    int comparisonResult = compareHandValues(getHandValue(handOne), getHandValue(handTwo));
+                    if(comparisonResult == 1)
+                        minIndex = j;
+                }
+                
+            }
+            
+            Map<String, Integer> temp = listOfHands.get(minIndex);
+            listOfHands.set(minIndex, listOfHands.get(i));
+            listOfHands.set(i, temp);
         }
-
-        if (map.values().contains(5))
-            return 6;
-        else if (map.values().contains(4))
-            return 5;
-        else if (map.values().contains(3)) {
-            if (map.values().contains(2))
-                return 4;
-            return 3;
-
-        } else if (map.values().contains(2)) {
-            int count = 0;
-            for (int i : map.values()) if (i == 2) count++;
-
-            if (count == 2) return 2;
-            else return 1;
+    }
+    
+    private static int compareHandValues(char[] arrOne, char[] arrTwo) {
+        for(int i = 0; i < arrOne.length; i++) {
+            if(arrOne[i] < arrTwo[i])
+                return 1;
+            else if(arrOne[i] > arrTwo[i])
+                return 0;
         }
-
         return 0;
     }
     
-    private static void sortHands() { //Selection Sort
-        int n = hands.size();
- 
-        for (int i = 0; i < n - 1; i++)
-        {
-            int minIndex = i;
-            for (int j = i + 1; j < n; j++) {
-                String[] tempOne = hands.get(j);
-                String[] tempTwo = hands.get(minIndex);
-                
-                if(getHandType(tempOne[0]) < getHandType(tempTwo[0]))
-                    minIndex = j;
-                else if(getHandType(tempOne[0]) == getHandType(tempTwo[0])) {
-                    if(strengthCheck(tempOne[0], tempTwo[0]))
-                        minIndex = j;
-                }
-            }
-            
-            String[] temp = hands.get(minIndex);
-            hands.set(minIndex, hands.get(i));
-            hands.set(i, temp);
+    private static char[] getHandValue(String hand) {
+        char[] arr = new char[hand.length()];
+        for(int i = 0; i < arr.length; i++) {
+            if(mapping.containsKey(hand.charAt(i))) arr[i] = mapping.get(hand.charAt(i));
+            else arr[i] = hand.charAt(i);
         }
+        
+        return arr;
     }
     
-    private static boolean strengthCheck(String handOne, String handTwo) {
-        char[] arr1 = handOne.toCharArray();
-        char[] arr2 = handTwo.toCharArray();
+    private static int getHandTypeValue(String hand) {
+        int sumHandValue = 0;
         
-        for(int curIndex = 0; curIndex < 5; curIndex++) {
-            char charOne = cardToValueMapping.containsKey(arr1[curIndex]) ? cardToValueMapping.get(arr1[curIndex]) : arr1[curIndex];
-            char charTwo = cardToValueMapping.containsKey(arr2[curIndex]) ? cardToValueMapping.get(arr2[curIndex]) : arr2[curIndex];
-            
-            if (charOne < charTwo)
-                return true;
-            
-            else if (charOne == charTwo)
-                continue;
-            
-            else if(charOne > charTwo)
-                return false;
+        Map<Character, Integer> map = new HashMap<>();
+        for(char i : hand.toCharArray()) {
+            if(!map.containsKey(i)) map.put(i, 1);
+            else map.put(i, map.get(i) + 1);
         }
         
-        return false;
+        for(Map.Entry<Character, Integer> entry : map.entrySet())
+            sumHandValue += (int) Math.pow(entry.getValue(), 2);
+        
+        return sumHandValue;
     }
 
 }
