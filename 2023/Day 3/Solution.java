@@ -30,6 +30,7 @@ class Solution {
         }
         
         System.out.println("Part 1: " + sumOfAdjacent(grid));
+        System.out.println("Part 2: " + sumOfGearRatios(grid));
     }
     
     private static long sumOfAdjacent(char[][] grid) {
@@ -123,8 +124,114 @@ class Solution {
                 }
             }
         }
-        Collections.sort(values);
         for(int i : values) sum += i;
+        
+        return sum;
+    }
+    
+    private static long sumOfGearRatios(char[][] grid) {
+        Set<Coordinates> visited = new HashSet<>();
+        int n = grid.length;
+        long sum = 0;
+        
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < n; j++) {
+                if((grid[i][j] == '*')) {
+                    int[] directionsCheck = checkAdjacent(grid, n, i, j);
+                    int numbersCount = 0;
+                    boolean validGear = false;
+                    
+                    for(int k : directionsCheck) if(k == 1) numbersCount++;
+                    if(directionsCheck[0] != 0 && directionsCheck[0] != 1) numbersCount++;
+                    if(directionsCheck[1] != 0 && directionsCheck[1] != 1) numbersCount++;
+                    
+                    if(numbersCount == 2) validGear = true;
+                    
+                    if(validGear) {
+                        List<Integer> values = new ArrayList<>();
+                        if(directionsCheck[0] != 0) { //There is a value directly above
+                            if(directionsCheck[0] == 1) { //No numbers diagonal of it
+                                StringBuilder sb = new StringBuilder();
+                                char cur = grid[i - 1][j];
+                                sb.append(cur);
+                                Coordinates coords = new Coordinates(i - 1, j);
+                                if(!visited.contains(coords)) {
+                                    visited.add(coords);
+                                    values.add(Integer.valueOf(sb.toString()));
+                                }
+                            } else if(directionsCheck[0] == -1 && directionsCheck[4] == -1) { // Top left and top have values going towards left
+                                String result = expandLeft(grid, visited, i, j,"prev");
+                                if(result.length() > 0) values.add(Integer.parseInt(result));
+                                
+                            } else if(directionsCheck[0] == 2 && directionsCheck[5] == 2) {
+                                String result = expandRight(grid, visited, n, i, j, "prev");
+                                if(result.length() > 0) values.add(Integer.parseInt(result));
+                                
+                            } else if(directionsCheck[0] == 9 && directionsCheck[4] == 9 && directionsCheck[5] == 9) {
+                                String result = expandBoth(grid, visited, n, i, j, "prev");
+                                if(result.length() > 0) values.add(Integer.parseInt(result));
+                            }
+                        } 
+                        
+                        if(directionsCheck[1] != 0) { //There is a value directly below
+                            if(directionsCheck[1] == 1) {
+                                StringBuilder sb = new StringBuilder();
+                                char cur = grid[i + 1][j];
+                                sb.append(cur);
+                                Coordinates coords = new Coordinates(i + 1, j);
+                                if(!visited.contains(coords)) {
+                                    visited.add(coords);
+                                    values.add(Integer.valueOf(sb.toString()));
+                                }
+                            } else if(directionsCheck[1] == -1 && directionsCheck[6] == -1) { // Bottom left and bottom have values
+                                String result = expandLeft(grid, visited, i, j, "next");
+                                if(result.length() > 0) values.add(Integer.parseInt(result));
+                                
+                            } else if(directionsCheck[1] == 2 && directionsCheck[7] == 2) {
+                                String result = expandRight(grid, visited, n, i, j, "next");
+                                if(result.length() > 0) values.add(Integer.parseInt(result));
+                                
+                            } else if(directionsCheck[1] == 9 && directionsCheck[6] == 9 && directionsCheck[7] == 9) {
+                                String result = expandBoth(grid, visited, n, i, j, "next");
+                                if(result.length() > 0) values.add(Integer.parseInt(result));
+                            }
+                        } 
+                        
+                        if(directionsCheck[2] == 1) { // Value to the left
+                            String result = expandLeft(grid, visited, i, j - 1, "current");
+                            if(result.length() > 0) values.add(Integer.parseInt(result));
+                        } 
+                        
+                        if(directionsCheck[3] == 1) { // Value to the right
+                            String result = expandRight(grid, visited, n, i, j + 1, "current");
+                            if(result.length() > 0) values.add(Integer.parseInt(result));
+                        } 
+                        
+                        if(directionsCheck[4] == 1) { // Value to the top left
+                            String result = expandLeft(grid, visited, i, j - 1, "prev");
+                            if(result.length() > 0) values.add(Integer.parseInt(result));
+                        } 
+                        
+                        if(directionsCheck[5] == 1) { // Value to the top right
+                            String result = expandRight(grid, visited, n, i, j + 1, "prev");
+                            if(result.length() > 0) values.add(Integer.parseInt(result));
+                        } 
+                        
+                        if(directionsCheck[6] == 1) { // Value to the bottom left
+                            String result = expandLeft(grid, visited, i, j - 1, "next");
+                            if(result.length() > 0) values.add(Integer.parseInt(result));
+                        } 
+                        
+                        if(directionsCheck[7] == 1) { // Value to the bottom right
+                            String result = expandRight(grid, visited, n, i, j + 1, "next");
+                            if(result.length() > 0) values.add(Integer.parseInt(result));
+                        }
+                        
+                        sum += (values.get(0) * values.get(1));
+                    }
+                }
+            }
+        }
         
         return sum;
     }
