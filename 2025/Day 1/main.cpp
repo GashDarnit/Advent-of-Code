@@ -27,22 +27,15 @@ long part_two(vector<pair<char, int>> input) {
     long total = 0;
     int cur = 50;
     for(pair<char, int> dir : input) {
-        if(dir.second < 0) { // Go left
-            for(int i = 0; i < abs(dir.second); i++) {
-                if(cur == 0) total++;
+        bool pos = (dir.first == 'R') ? true : false;
+        for(int i = 0; i < abs(dir.second); i++) {
+            if(cur == 0) total++;
 
-                cur--;
-                if(cur < 0) {
-                    cur = 99;
-                }
-            }
-        } else if(dir.second >= 0) { // Go right
-            for(int i = 0; i < abs(dir.second); i++) {
-                if(cur == 0) total++;
+            if(pos) cur++;
+            else cur--;
 
-                cur++;
-                if(cur > 99) cur = 0;
-            }
+            if(cur < 0) cur = 99;
+            else if(cur > 99) cur = 0;
         }
     }
 
