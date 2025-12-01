@@ -125,7 +125,7 @@ class Solution {
                 } else moveObjectsPartTwo(robotPosition, grid, '^');
                 
             }
-            //printGrid(grid, current); // Doesn't work with actual input because the grid is waaaay too big to fit into the console reliably...
+            printGrid(grid, current); // Doesn't work with actual input because the grid is waaaay too big to fit into the console reliably...
         }
         
         for(int i = 0; i < grid.length; i++)
