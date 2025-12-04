@@ -7,25 +7,6 @@
 
 using namespace std;
 
-int get_largest(string bank) {
-    int n = bank.length(), l = 0, r = bank.length() - 1;
-    int left_max = bank[l], right_max = bank[n - 1];
-    for(int i = 0; i < n - 1; i++) {
-        if(bank[i] > left_max) {
-            l = i;
-            left_max = bank[i];
-        }
-    }
-
-    for(int i = n - 1; i > l; i--) {
-        if(bank[i] > right_max) {
-            r = i;
-            right_max = bank[i];
-        }
-    }
-    return ((left_max - '0') * 10) + (right_max - '0');
-}
-
 pair<int, int> get_max_and_idx(string window) {
     pair<int, int> max_and_idx = {window[0] - '0', 0};
 
@@ -33,40 +14,34 @@ pair<int, int> get_max_and_idx(string window) {
         if(window[i] - '0' > max_and_idx.first) max_and_idx = {window[i] - '0', i};
         else if(window[i] - '0' == max_and_idx.first && i < max_and_idx.second) max_and_idx = {window[i] - '0', i};
     }
-    
     return max_and_idx;
+}
+
+long get_max_joltage(string bank, int K) {
+    int n = bank.length(), R = n, start = 0;
+    long cur = 0;
+    while(K > 0) {
+        int w_size = R - K + 1;
+        string window = bank.substr(start, w_size);
+        pair<int, int> max_and_idx = get_max_and_idx(window);
+
+        cur = (cur * 10) + max_and_idx.first;
+        R = n - start - max_and_idx.second - 1;
+        K--;
+        start = start + max_and_idx.second + 1;
+    }
+    return cur;
 }
 
 long part_one(vector<string> input) {
     long total = 0;
-    
-    for(string bank : input) {
-        int largest = get_largest(bank);
-        total += get_largest(bank);
-    }
-
+    for(string bank : input) total += get_max_joltage(bank, 2);
     return total;
 }
 
 long part_two(vector<string> input) {
     long total = 0;
-
-    for(string bank : input) {
-        int n = bank.length(), R = n, K = 12, start = 0;
-        long cur = 0;
-        while(K > 0) {
-            int w_size = R - K + 1;
-            string window = bank.substr(start, w_size);
-            pair<int, int> max_and_idx = get_max_and_idx(window);
-
-            cur = (cur * 10) + max_and_idx.first;
-            R = n - start - max_and_idx.second - 1;
-            K--;
-            start = start + max_and_idx.second + 1;
-        }
-        total += cur;
-    }
-
+    for(string bank : input) total += get_max_joltage(bank, 12);
     return total;
 }
 
